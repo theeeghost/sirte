@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Emna</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Cinzel:wght@400;600&family=Montserrat:wght@300;400;600&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #d4af37;
+            /* Gold */
+            --accent: #ff4d6d;
+            /* Pink */
+            --bg: #050203;
+            --text: #fff;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg);
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            touch-action: none;
+        }
+
+        /* --- BACKGROUND --- */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Floating Words */
+        .floating-word {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.15);
+            font-family: 'Dancing Script', cursive;
+            animation: floatUp 12s linear forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0.8);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-10vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* --- MAIN BOOK CONTAINER --- */
+        .book-container {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            height: 600px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            /* Gold border */
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.1);
+            transition: all 0.5s ease;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            pointer-events: none;
+            padding: 25px;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            color: #eee;
+            font-weight: 300;
+        }
+
+        /* --- NAVIGATION --- */
+        .nav-btn {
+            margin-top: 20px;
+            padding: 12px 40px;
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: black;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .btn-hide {
+            display: none;
+        }
+
+        /* --- GAME ELEMENTS --- */
+        canvas {
+            touch-action: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Typewriter Effect Box */
+        .typewriter-box {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.5rem;
+            color: #0f0;
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            min-width: 250px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Rose Petals Game */
+        .rose-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+        }
+
+        .center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            background: #ffca3a;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        .petal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(to bottom, #ff595e, #ff0050);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            transform-origin: center bottom;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            z-index: 2;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .petal.falling {
+            transform: translate(0, 200px) rotate(90deg) !important;
+            opacity: 0;
+        }
+
+        .rose-msg {
+            height: 60px;
+            color: var(--accent);
+            font-weight: bold;
+            margin-top: 10px;
+            font-family: 'Dancing Script';
+            font-size: 1.4rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Key & Lock Game */
+        .lock-container {
+            position: relative;
+            width: 250px;
+            height: 200px;
+            margin-top: 20px;
+        }
+
+        .lock {
+            width: 80px;
+            height: 100px;
+            background: #333;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            position: absolute;
+            top: 20px;
+            left: 85px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .key {
+            width: 60px;
+            height: 30px;
+            background: var(--primary);
+            border-radius: 5px;
+            position: absolute;
+            bottom: 20px;
+            left: 95px;
+            cursor: grab;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .key::after {
+            content: '';
+            width: 15px;
+            height: 15px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            left: -5px;
+            top: 7px;
+        }
+
+        /* Proposal Buttons */
+        .proposal-btns {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            position: relative;
+            width: 100%;
+            justify-content: center;
+            height: 60px;
+        }
+
+        .btn-yes {
+            background: var(--accent);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .btn-no {
+            background: #333;
+            color: #777;
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            position: absolute;
+            transition: 0.1s;
+            z-index: 5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-layer" id="words-container"></div>
+
+    <div class="book-container" id="book"></div>
+
+    <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Start Journey</button>
+
+    <script>
+        // --- CONFIGURATION ---
+        const floatingWords = ["Destiny", "Soul", "Trust", "Us", "Forever", "Connection", "Vibe", "Energy", "Emna", "Magic", "Faith"];
+
+        const story = [
+            { type: 'text', title: "For Emna", text: "I wanted to create something as unique as you are." }, // 1
+            { type: 'text', title: "Distance", text: "Miles separate us, but sometimes... I feel you right next to me." }, // 2
+            { type: 'text', title: "The Internet", text: "A strange place to find a soulmate, isn't it?" }, // 3
+            { type: 'text', title: "But...", text: "The connection I feel with you is stronger than anything I've felt in real life." }, // 4
+
+            // --- THE SECRET SEQUENCE ---
+            { type: 'text', title: "A Secret", text: "I will tell you a secret... I'm going to type my crush's name right now." }, // 5
+            { type: 'animation', title: "Processing...", text: "Detecting crush name..." }, // 6 (THE FUNNY ANIMATION)
+            { type: 'scratch', title: "Just Kidding", text: "Don't believe the glitch? Scratch this to see the real answer." }, // 7 (THE SCRATCH)
+
+            { type: 'text', title: "There You Are", text: "My favorite notification. My favorite person." }, // 8
+            { type: 'text', title: "Safe Place", text: "With you, I can just be myself. No masks. Just me." }, // 9
+
+            // --- GAME: THE ROSE (MODIFIED) ---
+            { type: 'game-rose', title: "Loves Me...?", text: "Pick the petals to see my fate." }, // 10
+
+            { type: 'text', title: "Anyway...", text: "Whether the flower agrees or not, I know what I feel." }, // 11
+            { type: 'text', title: "One Day", text: "I imagine the day we finally meet. The first hug." }, // 12
+            { type: 'text', title: "No Words", text: "We won't even need to speak. We'll just know." }, // 13
+            { type: 'text', title: "The Stars", text: "I look at the sky and wonder if you're looking at it too." }, // 14
+
+            // --- GAME: CONSTELLATION ---
+            { type: 'game-stars', title: "Our Stars", text: "Connect the glowing stars to reveal our sign." }, // 15
+
+            { type: 'text', title: "Aligned", text: "Like the stars, everything led me to you." }, // 16
+            { type: 'text', title: "My Heart", text: "It's locked. And there is only one person with the key." }, // 17
+
+            // --- GAME: KEY AND LOCK ---
+            { type: 'game-key', title: "Unlock Me", text: "Drag the key to the lock to open my heart." }, // 18
+
+            { type: 'text', title: "It's Open", text: "I want to write the prettiest love story with you, Emna." }, // 19
+            { type: 'proposal', title: "Be Mine?", text: "Will you be my girlfriend?" } // 20
+        ];
+
+        let currentSlide = -1;
+        const book = document.getElementById('book');
+        const nextBtn = document.getElementById('nextBtn');
+        const wordContainer = document.getElementById('words-container');
+
+        // --- BACKGROUND EFFECTS ---
+        function spawnWord() {
+            const el = document.createElement('div');
+            el.className = 'floating-word';
+            el.innerText = floatingWords[Math.floor(Math.random() * floatingWords.length)];
+            el.style.left = Math.random() * 90 + '%';
+            el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+            wordContainer.appendChild(el);
+            setTimeout(() => el.remove(), 12000);
+        }
+        setInterval(spawnWord, 1500);
+
+        // --- SLIDE ENGINE ---
+        function nextSlide() {
+            currentSlide++;
+            if (currentSlide >= story.length) return;
+            renderSlide(story[currentSlide]);
+        }
+
+        function renderSlide(data) {
+            book.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'slide active';
+
+            // Standard Text
+            if (data.type === 'text') {
+                div.innerHTML = `<h1>${data.title}</h1><p>${data.text}</p>`;
+                nextBtn.classList.remove('btn-hide');
+                nextBtn.innerText = "Next >";
+            }
+            // 1. FUNNY ANIMATION (Type B... Delete... Emna)
+            else if (data.type === 'animation') {
+                div.innerHTML = `<h1>${data.title}</h1><p>${data.text}</p>
+                <div class="typewriter-box">
+                    <span id="typeText"></span><span class="cursor">|</span>
+                </div>`;
+                nextBtn.classList.add('btn-hide');
+                setTimeout(runTypewriter, 500);
+            }
+            // 2. SCRATCH CARD
+            else if (data.type === 'scratch') {
+                div.innerHTML = `<h1>${data.title}</h1><p>${data.text}</p>
+                <div style="position:relative; width:280px; height:150px; margin:0 auto;">
+                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#ff4d6d; font-size:2rem; font-weight:bold; letter-spacing:5px;">EMNA ❤️</div>
+                    <canvas id="scratchCanvas" width="280" height="150" style="position:absolute; top:0; left:0; cursor:crosshair;"></canvas>
+                </div>`;
+                nextBtn.classList.add('btn-hide');
+                setTimeout(initScratch, 100);
+            }
+            // 3. ROSE GAME (UPDATED LOGIC)
+            else if (data.type === 'game-rose') {
+                div.innerHTML = `<h1>${data.title}</h1><p>${data.text}</p>
+                <div class="rose-container" id="roseContainer">
+                    <div class="center"></div>
+                </div>
+                <div class="rose-msg" id="roseMsg"></div>`;
+                nextBtn.classList.add('btn-hide');
+                setTimeout(initRoseGame, 100);
+            }
+            // 4. STARS GAME
+            else if (data.type === 'game-stars') {
+                div.innerHTML = `<h1>${data.title}</h1><p>${data.text}</p>
+                <canvas id="starCanvas" width="300" height="300"></canvas>`;
+                nextBtn.classList.add('btn-hide');
+                setTimeout(initStarGame, 100);
+            }
+            // 5. KEY GAME
+            else if (data.type === 'game-key') {
+                div.innerHTML = `<h1>${data.title}</h1><p>${data.text}</p>
+                <div class="lock-container">
+                    <div class="lock" id="lockTarget">🔒</div>
+                    <div class="key" id="dragKey"></div>
+                </div>`;
+                nextBtn.classList.add('btn-hide');
+                setTimeout(initKeyGame, 100);
+            }
+            // PROPOSAL
+            else if (data.type === 'proposal') {
+                div.innerHTML = `<h1>${data.title}</h1><p>${data.text}</p>
+                <div class="proposal-btns">
+                    <button class="btn-yes" onclick="accept()">YES ❤️</button>
+                    <button class="btn-no" id="runaway">No</button>
+                </div>`;
+                nextBtn.classList.add('btn-hide');
+                setTimeout(initRunaway, 100);
+            }
+
+            book.appendChild(div);
+        }
+
+        // --- FEATURE: TYPEWRITER ANIMATION ---
+        function runTypewriter() {
+            const el = document.getElementById('typeText');
+            // Hardcoded timing for smooth animation
+            setTimeout(() => el.innerText = "Crush: B", 500);
+            setTimeout(() => el.innerText = "Crush: Be", 800);
+            setTimeout(() => el.innerText = "Crush: B...", 1200);
+            setTimeout(() => el.innerText = "Crush: ", 2000); // Delete
+            setTimeout(() => el.innerText = "Crush: E", 2400);
+            setTimeout(() => el.innerText = "Crush: EM", 2500);
+            setTimeout(() => el.innerText = "Crush: EMN", 2600);
+            setTimeout(() => {
+                el.innerText = "Crush: EMNA ❤️";
+                el.style.color = "#ff4d6d";
+                nextBtn.classList.remove('btn-hide');
+                nextBtn.innerText = "Just Kidding >";
+            }, 2800);
+        }
+
+        // --- FEATURE: SCRATCH CARD ---
+        function initScratch() {
+            const canvas = document.getElementById('scratchCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = "#c0c0c0";
+            ctx.fillRect(0, 0, 280, 150);
+            ctx.fillStyle = "#555"; ctx.font = "20px Montserrat"; ctx.fillText("Scratch Here", 80, 80);
+
+            let isDrawing = false;
+            const totalPixels = 280 * 150;
+
+            const scratch = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+                const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI * 2); ctx.fill();
+
+                const data = ctx.getImageData(0, 0, 280, 150).data;
+                let clear = 0;
+                for (let i = 3; i < data.length; i += 4) if (data[i] === 0) clear++;
+                if (clear > totalPixels * 0.4) {
+                    nextBtn.classList.remove('btn-hide');
+                    nextBtn.innerText = "I Knew It >";
+                }
+            };
+            ['mousedown', 'touchstart'].forEach(e => canvas.addEventListener(e, () => isDrawing = true));
+            ['mouseup', 'touchend'].forEach(e => canvas.addEventListener(e, () => isDrawing = false));
+            ['mousemove', 'touchmove'].forEach(e => canvas.addEventListener(e, scratch));
+        }
+
+        // --- GAME: ROSE (WITH THE TWIST) ---
+        function initRoseGame() {
+            const container = document.getElementById('roseContainer');
+            const msg = document.getElementById('roseMsg');
+
+            // THE TWIST LOGIC IS HERE
+            const msgs = [
+                "You love me... 🌸",
+                "You love me not... 🥀",
+                "You love me... 💖",
+                "You love me not... ☁️",
+                "You love me NOT?! 💀"
+            ];
+            let petalsLeft = 5;
+
+            for (let i = 0; i < 5; i++) {
+                const p = document.createElement('div');
+                p.className = 'petal';
+                p.style.transform = `translate(-50%, -100%) rotate(${i * 72}deg)`;
+                p.onclick = () => {
+                    if (p.classList.contains('falling')) return;
+                    p.classList.add('falling');
+
+                    // Show text
+                    msg.innerText = msgs[5 - petalsLeft];
+                    msg.style.opacity = 1;
+
+                    petalsLeft--;
+
+                    if (petalsLeft === 0) {
+                        // THE BIG REVEAL
+                        setTimeout(() => {
+                            msg.style.color = "red";
+                            msg.innerText = "Wait... I don't care! 😤";
+                            setTimeout(() => {
+                                msg.style.color = "#ff4d6d";
+                                msg.innerHTML = "You NEED to love me! 🫵❤️";
+                                nextBtn.classList.remove('btn-hide');
+                                nextBtn.innerText = "Haha, Okay >";
+                            }, 1500);
+                        }, 1000);
+                    }
+                };
+                container.appendChild(p);
+            }
+        }
+
+        // --- GAME: STARS ---
+        function initStarGame() {
+            const canvas = document.getElementById('starCanvas');
+            const ctx = canvas.getContext('2d');
+            const stars = [{ x: 150, y: 80 }, { x: 90, y: 60 }, { x: 210, y: 60 }, { x: 40, y: 120 }, { x: 260, y: 120 }, { x: 150, y: 250 }];
+            let connected = [];
+
+            function draw() {
+                ctx.clearRect(0, 0, 300, 300);
+                ctx.beginPath(); ctx.strokeStyle = "#d4af37"; ctx.lineWidth = 2;
+                if (connected.length > 0) {
+                    ctx.moveTo(connected[0].x, connected[0].y);
+                    for (let i = 1; i < connected.length; i++) ctx.lineTo(connected[i].x, connected[i].y);
+                    ctx.stroke();
+                }
+                stars.forEach(s => {
+                    ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(s.x, s.y, 5, 0, Math.PI * 2); ctx.fill();
+                });
+            }
+            draw();
+
+            const click = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+                const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+                stars.forEach(s => {
+                    if (Math.sqrt((x - s.x) ** 2 + (y - s.y) ** 2) < 20 && !connected.includes(s)) {
+                        connected.push(s);
+                        draw();
+                        if (connected.length === stars.length) {
+                            ctx.beginPath(); ctx.strokeStyle = "#ff4d6d"; ctx.lineWidth = 3;
+                            ctx.moveTo(150, 80); ctx.bezierCurveTo(150, 70, 90, 0, 40, 120);
+                            ctx.lineTo(150, 250); ctx.lineTo(260, 120);
+                            ctx.bezierCurveTo(260, 0, 150, 70, 150, 80); ctx.stroke();
+                            setTimeout(() => { nextBtn.classList.remove('btn-hide'); nextBtn.innerText = "Aligned >"; }, 500);
+                        }
+                    }
+                });
+            };
+            canvas.addEventListener('mousedown', click); canvas.addEventListener('touchstart', click);
+        }
+
+        // --- GAME: KEY ---
+        function initKeyGame() {
+            const key = document.getElementById('dragKey');
+            const lock = document.getElementById('lockTarget');
+            let isDragging = false;
+
+            const move = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const rect = key.parentElement.getBoundingClientRect();
+                key.style.left = (clientX - rect.left - 30) + 'px';
+                key.style.top = (clientY - rect.top - 15) + 'px';
+
+                const lockRect = lock.getBoundingClientRect();
+                if (clientX > lockRect.left && clientX < lockRect.right && clientY > lockRect.top && clientY < lockRect.bottom) {
+                    lock.innerText = "🔓"; lock.style.border = "2px solid #fff"; key.style.display = 'none';
+                    setTimeout(() => { nextBtn.classList.remove('btn-hide'); nextBtn.innerText = "Opened >"; }, 500);
+                }
+            };
+            key.addEventListener('mousedown', () => isDragging = true); key.addEventListener('touchstart', () => isDragging = true);
+            window.addEventListener('mouseup', () => isDragging = false); window.addEventListener('touchend', () => isDragging = false);
+            window.addEventListener('mousemove', move); window.addEventListener('touchmove', move);
+        }
+
+        // --- RUNAWAY BTN ---
+        function initRunaway() {
+            const btn = document.getElementById('runaway');
+            const move = (e) => {
+                e.preventDefault();
+                const x = Math.random() * (window.innerWidth - 100);
+                const y = Math.random() * (window.innerHeight - 50);
+                btn.style.position = 'fixed'; btn.style.left = x + 'px'; btn.style.top = y + 'px';
+            };
+            btn.addEventListener('mouseover', move); btn.addEventListener('touchstart', move); btn.addEventListener('click', move);
+        }
+
+        function accept() {
+            book.innerHTML = `<h1>I Knew It ❤️</h1><p>Emna, you just made me the happiest person.</p><p>Screenshot this!</p>`;
+            confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        }
+
+    </script>
+</body>
+
+</html>
